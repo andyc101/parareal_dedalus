@@ -43,7 +43,7 @@ def add_file_handler_parareal(evaluator, filename,set_num_in,**kw):
     return evaluator.add_handler(FH)
 
 
-class Parareal_solver_t1:
+class Parareal_solver:
     
     def __init__(self,fine_solver,coarse_dt,fine_dt,ratio,T_end,t_comm,file_name):
         
