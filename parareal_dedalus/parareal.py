@@ -43,6 +43,43 @@ def add_file_handler_parareal(evaluator, filename,set_num_in,**kw):
     return evaluator.add_handler(FH)
 
 
+def split_comms(dedalus_slices):
+    """Function to split world communicator into time and space communicators
+    
+    Arguments:
+    dedalus_slices -- number of processors to use in space
+    
+    Returns:
+    world : mpi.comm_world
+    x_comm : communicator for spatial parallellisation
+    t_comm : communicator for parareal
+    
+    """
+    world=MPI.COMM_WORLD  #overall communicator
+    world_size=world.Get_size()
+    world_rank=world.Get_rank()
+    
+    assert world_size%dedalus_slices==0,"total processors not equal to space x time"
+    
+    t_number=world_rank//dedalus_slices
+    x_number=world_rank%dedalus_slices
+    
+    key=+world_rank
+    
+    x_comm=world.Split(t_number,key)  #create communicator for spatial parallelisation (dedalus)
+    
+    x_comm.Set_name("time_{}".format(t_number))
+    
+    t_comm=world.Split(x_number,key)    # create communicator for parareal
+    t_comm.Set_name("x_{}".format(x_number))
+    
+    process_t_next=world_rank+dedalus_slices
+    process_t_last=world_rank-dedalus_slices
+    k_max=t_comm.size+1
+    
+    return world, x_comm, t_comm
+
+
 class Parareal_solver:
     
     def __init__(self,fine_solver,coarse_dt,fine_dt,ratio,T_end,t_comm,file_name):
