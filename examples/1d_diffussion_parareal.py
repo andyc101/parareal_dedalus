@@ -55,12 +55,6 @@ mu=2.5
 sigma=2
 u['g'] = 100/(np.sqrt(2*np.pi*sigma**2)) * np.exp(- (x-mu)**2/(2*sigma**2))
 
-#initial conditions
-# ~ x_c = domain_c.grid(0)
-# ~ u_c = solver_c.state['u']
-# ~ mu=2.5
-# ~ sigma=2
-# ~ u_c['g'] = 1/(np.sqrt(2*np.pi*sigma**2)) * np.exp(- (x_c-mu)**2/(2*sigma**2))
 
 
 
