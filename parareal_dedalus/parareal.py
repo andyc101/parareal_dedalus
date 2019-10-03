@@ -556,6 +556,7 @@ class Parareal_solver:
             if self.x_comm.rank==0:
                 print("Parareal iteration:{} complete, Estimated defect: {:.3e}".format(self.k,self.error))
         
+        return self.error 
         #~ self.k=self.k+1
         #~ print("t_rank:{}, completed iteration {}".format(self.t_rank,self.k))
     
