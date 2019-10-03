@@ -81,7 +81,7 @@ start_time=time.time()
 my_parareal.coarse_initial_run()
 
 for i in range(k_max):
-    my_parareal.parareal_iteration()
+    error = my_parareal.parareal_iteration()
     if t_comm.rank==t_comm.size-1:
         run_time=time.time()-start_time
         print("Iter:{} complete in {:.2f} sec".format(i+1,run_time))
