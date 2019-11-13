@@ -508,11 +508,9 @@ class Parareal_solver:
                     self.coarse_solver.state[field]['g'])
                 self.temp[i] = np.copy(self.coarse_solver.state[field]['g'])
 
-        """
-        Below we save the state and then copy the received state back
-        to the fine solver so no corruption occurs
-        this should happen straight after we receive the update
-        """
+        # Below we save the state and then copy the received state back
+        # to the fine solver so no corruption occurs
+        # this should happen straight after we receive the update
         # i think this bit works 
         if self.t_rank != 0:
             self.save_state()
