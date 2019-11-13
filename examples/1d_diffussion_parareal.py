@@ -24,15 +24,15 @@ save_name='test'
 
 # Here we use parareal split function to create two communicators
 
-world, x_comm, t_comm = parareal.split_comms(dedalus_slices)
-k_max = t_comm.size+1
+world_comm, dedalus_comm, parareal_comm = parareal.split_comms(dedalus_slices)
+k_max = parareal_comm.size+1
 
 
 
 #Fine solver
 logger = logging.getLogger(__name__)
 xbasis = de.Fourier('x', resolution, interval=(0, 5), dealias=3/2)
-domain = de.Domain([xbasis],grid_dtype=np.float64,comm=x_comm)
+domain = de.Domain([xbasis],grid_dtype=np.float64,comm=dedalus_comm)
 problem = de.IVP(domain, variables=['u'])
 problem.parameters['a']=a
 problem.add_equation("dt(u) = a*dx(dx(u))") #Here, dxx(u) on right hand side, so explicit
@@ -41,7 +41,7 @@ solver= problem.build_solver(de.timesteppers.RK443)
 
 #Coarse solver
 xbasis_c = de.Fourier('x', resolution/coarsening_ratio, interval=(0,5), dealias=3/2)
-domain_c = de.Domain([xbasis_c],np.float64,comm=x_comm)
+domain_c = de.Domain([xbasis_c],np.float64,comm=dedalus_comm)
 problem_c = de.IVP(domain_c, variables=['u'])
 problem_c.parameters['a']=a
 problem_c.add_equation("dt(u) - a*dx(dx(u)) = 0") #Here, dxx(u) on left hand side, so implicit
@@ -59,7 +59,7 @@ u['g'] = 100/(np.sqrt(2*np.pi*sigma**2)) * np.exp(- (x-mu)**2/(2*sigma**2))
 
 
 # Create Parareal solver
-my_parareal= Parareal_solver(solver,dt_coarse,dt_fine,coarsening_ratio,end_time,t_comm,save_name)
+my_parareal= Parareal_solver(solver,dt_coarse,dt_fine,coarsening_ratio,end_time,parareal_comm,save_name)
 
 # Self generate coarse solver
 # ~ my_parareal.set_up_coarse()
@@ -82,7 +82,7 @@ my_parareal.coarse_initial_run()
 
 for i in range(k_max):
     error = my_parareal.parareal_iteration()
-    if t_comm.rank==t_comm.size-1:
+    if parareal_comm.rank==parareal_comm.size-1:
         run_time=time.time()-start_time
         print("Iter:{} complete in {:.2f} sec".format(i+1,run_time))
 
