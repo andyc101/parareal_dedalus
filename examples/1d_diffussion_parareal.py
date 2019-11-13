@@ -1,3 +1,7 @@
+"""Script to run simulate the 1D diffusion equation using
+RK4 in the fine solver, and implicit euler in the
+coarse solver.
+"""
 import numpy as np
 import matplotlib.pyplot as plt
 from dedalus import public as de
