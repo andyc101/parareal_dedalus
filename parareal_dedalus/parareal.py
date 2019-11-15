@@ -476,11 +476,7 @@ class Parareal_solver:
             for fine_step in range(self.N_fine_steps):
                 self.fine_solver.step(self.fine_dt)
 
-        if self.t_rank == self.t_size - 1:
-            self.result = []
-            for i in range(len(self.communication_fields)):
-                field = self.communication_fields[i]
-                self.result.append(np.copy(self.fine_solver.state[field]['g']))
+
 
         # copy fine result to storage for further calculation
         for i in range(len(self.communication_fields)):
@@ -524,6 +520,8 @@ class Parareal_solver:
         for coarse_step in range(self.N_coarse_steps):
             self.coarse_solver.step(self.coarse_dt)
 
+        # Now we do the parareal correction step
+        # for all time slices > 0.
         for index in range(len(self.communication_fields)):
             field = self.communication_fields[index]
             self.coarse_solver.state[field].set_scales(self.ratio)
@@ -538,12 +536,23 @@ class Parareal_solver:
 
             self.G_n1_k[index] = np.copy(self.G_n1_k1[index])
 
+        # Now we save the state for the final time slice at the end
+        # of that time slice - this is the final result
         if self.t_rank == self.t_comm.size - 1:
             for index in range(len(self.communication_fields)):
                 field = self.communication_fields[index]
                 self.fine_solver.state[field].set_scales(1)
                 self.fine_solver.state[field]['g'] = np.copy(
                     self.correction_k1[index])
+
+            # Now we save the final result in a variable list so that
+            # we can compare with a known result while running a simulation.
+            # Can access this using Parareal_solver.result in sim loop.
+            self.result = []
+            for i in range(len(self.communication_fields)):
+                field = self.communication_fields[i]
+                self.result.append(
+                    np.copy(self.fine_solver.state[field]['g']))
 
             self.save_state_final()
             for index in range(len(self.communication_fields)):
