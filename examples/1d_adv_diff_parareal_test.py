@@ -11,21 +11,22 @@ from dedalus.extras.plot_tools import quad_mesh, pad_limits
 import logging
 from mpi4py import MPI
 import time
+import os
 
 from parareal_dedalus.parareal import Parareal_solver
 from parareal_dedalus import parareal
 
 # Set parameters:
-
+os.chdir('examples/results')
 world_comm, dedalus_comm, parareal_comm = parareal.split_comms(1)
 
 a=0.25
 b=0.25
 dt_fine = 5e-3
-resolution = 64
+resolution = 32
 end_time = 1
 dt_coarse = 2.5e-2
-coarsening_ratio = 8
+coarsening_ratio = 4
 
 def parareal_run(world_comm, dedalus_comm, parareal_comm, dt_fine, resolution,
                  end_time, u_serial):
@@ -164,10 +165,10 @@ def main(world_comm, dedalus_comm, parareal_comm):
         plt.semilogy(1+np.array(errors['k']),errors['iteration_error'],label="Defect to previous iteration")
         plt.xlabel('Parareal iteration')
         plt.ylabel('Magnitude of Defect')
-        plt.title('Difference in convergence for coarsening facotr of {}'.format(coarsening_ratio))
+        plt.title('Difference in convergence for coarsening factor of {}'.format(coarsening_ratio))
         plt.legend()
         plt.tight_layout()
-        plt.savefig("adv-diff_errors_coarse_factor_{}.pdf".format(coarsening_ratio))
+        plt.savefig("../output/adv-diff_errors_coarse_factor_{}.pdf".format(coarsening_ratio))
         plt.pause(300)
 
 
