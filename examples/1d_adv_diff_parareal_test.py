@@ -23,15 +23,16 @@ world_comm, dedalus_comm, parareal_comm = parareal.split_comms(1)
 a=0.25
 b=0.25
 dt_fine = 5e-3
-resolution = 32
+resolution = 64
 end_time = 1
 dt_coarse = 2.5e-2
-coarsening_ratio = 4
+coarsening_ratio = 16
 
 def parareal_run(world_comm, dedalus_comm, parareal_comm, dt_fine, resolution,
                  end_time, u_serial):
 
     dedalus_slices = 1
+
 
     save_name = 'test'
 
@@ -72,7 +73,7 @@ def parareal_run(world_comm, dedalus_comm, parareal_comm, dt_fine, resolution,
     start_time = time.time()
     my_parareal.coarse_initial_run()
 
-    errors = {'k':[],'iteration_error':[],'serial_error':[]}
+    errors = {'k':[],'iteration_error':[],'serial_error':[],'residual':[]}
 
     for i in range(k_max):
         internal_error = my_parareal.parareal_iteration()
@@ -82,12 +83,13 @@ def parareal_run(world_comm, dedalus_comm, parareal_comm, dt_fine, resolution,
                 result - u_serial) / np.linalg.norm(u_serial)
             run_time = time.time() - start_time
             print("Iter:{} complete in {:.2f} sec".format(i + 1, run_time))
-            print('Defect to previous iteration:{:.2e},  Defect to serial solver:{:.2e} \n'.format(
-                internal_error, external_error))
+            print('Defect to previous iteration:{:.2e},  Defect to serial solver:{:.2e}, residual:{:.2e} \n'.format(
+                internal_error, external_error,my_parareal.residual[0]))
 
             errors['k'].append(i)
             errors['iteration_error'].append(internal_error)
             errors['serial_error'].append(external_error)
+            errors['residual'].append(my_parareal.residual[0])
 
     world_rank = MPI.COMM_WORLD.Get_rank()
     MPI.COMM_WORLD.Barrier()
@@ -163,6 +165,8 @@ def main(world_comm, dedalus_comm, parareal_comm):
 
         plt.semilogy(1+np.array(errors['k']),errors['serial_error'],label="Defect to serial solution")
         plt.semilogy(1+np.array(errors['k']),errors['iteration_error'],label="Defect to previous iteration")
+        plt.semilogy(1 + np.array(errors['k']), errors['residual'],
+                     label="Residual $=F(y^k_{n-1}) - y^{k}_n$")
         plt.xlabel('Parareal iteration')
         plt.ylabel('Magnitude of Defect')
         plt.title('Difference in convergence for coarsening factor of {}'.format(coarsening_ratio))

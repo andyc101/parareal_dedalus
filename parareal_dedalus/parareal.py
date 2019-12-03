@@ -549,10 +549,17 @@ class Parareal_solver:
             # we can compare with a known result while running a simulation.
             # Can access this using Parareal_solver.result in sim loop.
             self.result = []
+            self.residual = []
             for i in range(len(self.communication_fields)):
                 field = self.communication_fields[i]
                 self.result.append(
                     np.copy(self.fine_solver.state[field]['g']))
+
+                # Here we form the residual r_n = F(y^k_n-1) - y^k_n
+                # can be accessed using Parareal_solver.resid
+                resid = np.max(np.abs(self.F_n1_k[i] - self.correction_k0[i]))\
+                        /np.max(np.abs(self.correction_k0[i]))
+                self.residual.append(resid)
 
             self.save_state_final()
             for index in range(len(self.communication_fields)):
