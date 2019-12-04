@@ -7,3 +7,5 @@ The writers of Dedalus have written a paper explaining Dedalus which can be foun
 K J Burns, G M Vasil, J S Oishi, D Lecoanet, B P Brown, "Dedalus: A Flexible Framework for Numerical Simulations with Spectral Methods," arXiv.org, p. arXiv:1905.10388, May 2019.
 
 More information about Parareal and other parallel in time methods can be found here: [Parallel-in-time.org](https://parallel-in-time.org/).
+
+[![DOI](https://zenodo.org/badge/225594307.svg)](https://zenodo.org/badge/latestdoi/225594307)
