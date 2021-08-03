@@ -153,7 +153,7 @@ class Parareal_solver:
         eq_list = []
         param_list = []
         base_list = []
-        boundary_list = []
+        #boundary_list = []
         for i in range(num_eqs):
             eq_list.append(solver.problem.equations[i]['raw_equation'])
 
@@ -174,8 +174,8 @@ class Parareal_solver:
                               'base_type': base_type, 'dealias': base_dealias,
                               'N': base_N})
 
-        for i in range(len(solver.problem.bcs)):
-            boundary_list.append(solver.problem.bcs[i]['raw_equation'])
+        #for i in range(len(solver.problem.bcs)):
+        #    boundary_list.append(solver.problem.bcs[i]['raw_equation'])
 
         return eq_list, param_list, base_list
 
@@ -234,12 +234,12 @@ class Parareal_solver:
         for i in range(len(eq_list)):
             problem_coarse.add_equation(eq_list[i])
 
-        for i in range(len(self.fine_solver.problem.bcs)):
-            bc = self.fine_solver.problem.bcs[i]
-            bc_condition = self.fine_solver.problem.bcs[i]['raw_condition']
+        # for i in range(len(self.fine_solver.problem.bcs)):
+            # bc = self.fine_solver.problem.bcs[i]
+            # bc_condition = self.fine_solver.problem.bcs[i]['raw_condition']
 
-            bc_string = self.fine_solver.problem.bcs[i]['raw_equation']
-            problem_coarse.add_bc(bc_string, condition=bc_condition)
+            # bc_string = self.fine_solver.problem.bcs[i]['raw_equation']
+            # problem_coarse.add_bc(bc_string, condition=bc_condition)
 
         timestep_type = self.fine_solver.timestepper.__class__.__name__
 
